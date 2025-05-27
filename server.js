@@ -22,7 +22,7 @@ app.get("/", (req,res)=>{
 })
 
 
-// APi Routes
+// API Users  Routes 
 app.use("/api/users", userRoutes)
 
 app.listen(PORT, () => {
