@@ -1,6 +1,7 @@
 const express = require("express")
 const User = require("../models/UserModel.js")
 const jwt = require("jsonwebtoken")
+ const {protect} = require("../middleware/authMiddleware.js")
 
 
 const router = express.Router()
@@ -63,7 +64,8 @@ router.post("/login", async (req, res) => {
                     name: user.name,
                     email: user.email,
                     role: user.role,
-                }, token
+                },
+                token,
             })
         })
     } catch (error) {
@@ -71,6 +73,16 @@ router.post("/login", async (req, res) => {
         res.status(500).send("Server Error")
 
     }
+});
+
+// @GET api/users/profile
+// @desc get logged-in profile (Protected route)
+// @access Private
+
+router.get("/profile", protect, async(req,res)=>{
+    res.json(req.user);
 })
+
+
 
 module.exports = router
