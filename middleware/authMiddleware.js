@@ -5,7 +5,6 @@ const User = require("../models/UserModel.js")
 
 const protect = async(req, res, next)=>{
     let token
-    console.log(req.headers.authorization)
     if(
         req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")
@@ -17,7 +16,6 @@ const protect = async(req, res, next)=>{
             req.user = await User.findById(decoded.user.id).select("-password")
             next()
         } catch (error) {
-            console.log("Token verification failed",error)
             res.status(401).json({message : "Not authorized token failed"})
         }
     } else {
@@ -25,4 +23,14 @@ const protect = async(req, res, next)=>{
     }
 }
 
-module.exports = {protect}
+// Middleware to check if user is an admin 
+
+const admin = async(req, res ,next) =>{
+    if(req.user && req.user.role === 'admin'){
+        next()
+    } else {
+        res.status(403).json({message : "Not authorized as an admin"})
+    }
+}
+
+module.exports = {protect, admin}
