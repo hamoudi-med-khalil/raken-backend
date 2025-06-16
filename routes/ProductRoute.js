@@ -5,6 +5,28 @@ const { protect, admin } = require("../middleware/authMiddleware.js")
 const router = express.Router()
 
 
+
+// @route GET /api/products/best-seller
+// @desc get similar product based on gender and category
+// @access Public
+
+router.get("/best-seller", async (req, res) => {
+    try {
+        const bestSeller = await Product.findOne().sort({ rating: -1 });
+        if (bestSeller) {
+            res.json(bestSeller)
+        } else {
+            res.status(404).json({ message: "No best Seller Product" })
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server Error")
+
+    }
+})
+
+
+
 // @route POST /api/products
 // @desc Create a new Product
 // access Private/admin
@@ -62,6 +84,7 @@ router.post("/", protect, admin, async (req, res) => {
     }
 })
 
+
 // @route PUT /api/products/:id
 // @desc Update a Product
 // access Private/admin
@@ -89,8 +112,11 @@ router.put("/:id", protect, admin, async (req, res) => {
         sku
     } = req.body
     try {
+
+
         // find Product
         const product = await Product.findById(req.params.id)
+
 
         if (product) {
             product.name = name || product.name,
@@ -114,6 +140,7 @@ router.put("/:id", protect, admin, async (req, res) => {
                 product.sku = sku || product.sku
 
             const updatedProduct = await product.save()
+
             res.json(updatedProduct)
         } else {
             res.status(404).json({ message: "Product Not Found" })
@@ -126,12 +153,15 @@ router.put("/:id", protect, admin, async (req, res) => {
     }
 })
 
+
 // @route DELETE /api/products/:id
 // @desc Delete a product
 // @access private/admin
 
 router.delete("/:id", protect, admin, async (req, res) => {
     const product = await Product.findById(req.params.id)
+    console.log(req.params.id)
+
     try {
         if (product) {
             await product.deleteOne();
@@ -229,24 +259,7 @@ router.get("/", async (req, res) => {
 
     }
 })
-// @route GET /api/products/best-seller
-// @desc get similar product based on gender and category
-// @access Public
 
-router.get("/best-seller", async (req, res) => {
-    try {
-        const bestSeller = await Product.findOne().sort({ rating: -1 });
-        if (bestSeller) {
-            res.json(bestSeller)
-        } else {
-            res.status(404).json({ message: "No best Seller Product" })
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Server Error")
-
-    }
-})
 
 // @route GET /api/products/new-arrivals
 // @desc Retrieve latest 8 products
@@ -269,7 +282,6 @@ router.get("/new-arrivals", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
     const productID = req.params.id
-
     try {
         const product = await Product.findById(productID)
 
